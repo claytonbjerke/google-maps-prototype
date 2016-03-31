@@ -1,59 +1,7 @@
 'use strict';
 
 // http://itouchmap.com/latlong.html
-
-var map;
-
-var styles = [{
-    stylers: [{
-        hue: "#00ffe6"
-  }, {
-        saturation: -20
-  }]
-}, {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{
-        lightness: 100
-  }, {
-        visibility: "simplified"
-  }]
-}, {
-    featureType: "road",
-    elementType: "labels",
-    stylers: [{
-        visibility: "off"
-  }]
-}];
-
-var marker;
-
-function initMap() {
-
-    var latlng = {
-        lat: 35.222195,
-        lng: -97.353287
-    };
-
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: latlng,
-        zoom: 12
-    });
-
-    map.setOptions({
-        styles: styles
-    });
-
-    marker = new google.maps.Marker({
-        position: latlng,
-        map: map
-    });
-
-}
-
-setInterval(updateMarker, 500);
-var index = 0;
-var latLong = [{
+var latLongs = [{
         lat: 35.222195,
         lng: -97.353287
 },
@@ -102,12 +50,99 @@ var latLong = [{
         lng: -97.352257
 }];
 
+var map;
+
+var styles = [{
+    stylers: [{
+        hue: "#00ffe6"
+  }, {
+        saturation: -20
+  }]
+}, {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{
+        lightness: 100
+  }, {
+        visibility: "simplified"
+  }]
+}, {
+    featureType: "road",
+    elementType: "labels",
+    stylers: [{
+        visibility: "off"
+  }]
+}];
+
+var marker;
+var directionsDisplay;
+var request;
+var directionsService;
+
+function initMap() {
+
+    var latlng = {
+        lat: 35.222195,
+        lng: -97.353287
+    };
+
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: latlng,
+        zoom: 12
+    });
+
+    map.setOptions({
+        styles: styles
+    });
+
+    marker = new google.maps.Marker({
+        position: latlng,
+        map: map
+    });
+
+    var destination = new google.maps.Marker({
+        position: latLongs[latLongs.length - 1],
+        map: map
+    });
+
+
+
+    directionsDisplay = new google.maps.DirectionsRenderer({
+        map: map,
+        polylineOptions: {
+            strokeColor: '#0000FF',
+            strokeWeight: 5,
+            strokeOpacity: 0.5
+        },
+        suppressMarkers: true
+    });
+
+    request = {
+        destination: latLongs[latLongs.length - 1],
+        origin: latLongs[0],
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+
+    directionsService = new google.maps.DirectionsService();
+
+    directionsService.route(request, function (response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(response);
+        }
+    });
+
+}
+
+setInterval(updateMarker, 300);
+
+var index = 0;
+
 function updateMarker() {
 
-    if (index === latLong.length - 1) {
+    if (index === latLongs.length - 1) {
         index = 0;
     }
-    var LatLng = new google.maps.LatLng(latLong[index].lat, latLong[index].lng);
+    var LatLng = new google.maps.LatLng(latLongs[index].lat, latLongs[index].lng);
     marker.setPosition(LatLng);
 
     index++;
